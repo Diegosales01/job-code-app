@@ -11,7 +11,7 @@ nltk.download('stopwords')
 stop_words = stopwords.words('portuguese')
 
 # URL do arquivo Excel no GitHub
-ARQUIVO_EXCEL = "https://raw.githubusercontent.com/<seu_usuario>/<nome_repositorio>/<branch>/Base_Job_Code_2024.xlsx"
+ARQUIVO_EXCEL = "https://raw.githubusercontent.com/Diegosales01/job-code-app/refs/heads/main/Base_Job_Code_2024.xlsx"
 
 # Função para carregar dados do Excel
 @st.cache_data
