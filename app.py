@@ -6,9 +6,25 @@ from sklearn.metrics.pairwise import cosine_similarity
 from nltk.corpus import stopwords
 import nltk
 
-# Configurar NLTK
-nltk.download('stopwords')
-stop_words = stopwords.words('portuguese')
+# Stopwords estáticas em português (sem necessidade de download)
+stop_words = [
+    'de', 'a', 'o', 'que', 'e', 'do', 'da', 'em', 'um', 'para', 'é', 
+    'com', 'não', 'uma', 'os', 'no', 'se', 'na', 'por', 'mais', 'as', 
+    'dos', 'como', 'mas', 'foi', 'ao', 'ele', 'das', 'tem', 'à', 
+    'seu', 'sua', 'ou', 'ser', 'quando', 'muito', 'há', 'nos', 
+    'já', 'está', 'eu', 'também', 'só', 'pelo', 'pela', 'até', 
+    'isso', 'ela', 'entre', 'depois', 'sem', 'mesmo', 'aos', 
+    'seus', 'quem', 'nas', 'me', 'esse', 'eles', 'estão', 
+    'você', 'tinha', 'foram', 'essa', 'num', 'nem', 'suas', 
+    'meu', 'às', 'minha', 'têm', 'numa', 'pelos', 'elas', 
+    'havia', 'seja', 'qual', 'será', 'nós', 'tenho', 'lhe', 
+    'deles', 'essas', 'esses', 'pelas', 'este', 'fosse', 
+    'dele', 'tu', 'te', 'vocês', 'vos', 'lhes', 'meus', 
+    'minhas', 'teu', 'tua', 'teus', 'tuas', 'nosso', 
+    'nossa', 'nossos', 'nossas', 'dela', 'delas', 'esta', 
+    'estes', 'estas', 'aquele', 'aquela', 'aqueles', 
+    'aquelas', 'isto', 'aquilo'
+]
 
 # URL do arquivo Excel no GitHub
 ARQUIVO_EXCEL = "https://raw.githubusercontent.com/Diegosales01/job-code-app/refs/heads/main/Base_Job_Code_2024.xlsx"
