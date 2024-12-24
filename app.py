@@ -11,14 +11,41 @@ BASE_JOB_CODES = "https://raw.githubusercontent.com/Diegosales01/job-code-app/re
 BASE_SUBSTITUICAO = "https://raw.githubusercontent.com/Diegosales01/job-code-app/refs/heads/main/BASE_SUBSTITUICAO.xlsx"
 
 # Mapeamento dos níveis de carreira
-NIVEIS_CARREIRA = {...}
+NIVEIS_CARREIRA = {
+    "PRESIDENTE": "EX-19",
+    "VICE PRESIDENTE": "EX-18",
+    "DIRETOR II": "EX-17",
+    "DIRETOR I": "EX-16",
+    "GERENTE EXECUTIVO": "M3-14",
+    "GERENTE II": "M2-13",
+    "GERENTE I": "M2-12",
+    "LÍDER TÉCNICO I": "M2-12",
+    "LÍDER TÉCNICO II": "M2-13",
+    "COORDENADOR I": "M1-10",
+    "COORDENADOR II": "M1-11",
+    "ESPECIALISTA I": "M1-10",
+    "ESPECIALISTA II": "M1-11",
+    "ANALISTA III": "P3-11",
+    "ANALISTA III (COMERCIAL)": "S3-11",
+    "ANALISTA II": "P2-10",
+    "ANALISTA II (COMERCIAL)": "S2-10",
+    "ANALISTA I": "P1-08",
+    "ANALISTA I (COMERCIAL)": "S1-08",
+    "ASSISTENTE (ATENDIMENTO)": "T2-06",
+    "ASSISTENTE": "U2-06",
+    "AUXILIAR": "U2-05",
+    "AUXILIAR (ATENDIMENTO)": "T2-05",
+    "SUPERVISOR III (ATENDIMENTO)": "S3-11",
+    "SUPERVISOR II (ATENDIMENTO)": "P2-10",
+    "SUPERVISOR I (ATENDIMENTO)": "T4-09",
+    "ASSISTENTE (ATENDIMENTO)": "U1-04"
+}
 
 @st.cache_data
 def carregar_bases():
     try:
         base_job_codes = pd.read_excel(BASE_JOB_CODES)
         base_substituicao = pd.read_excel(BASE_SUBSTITUICAO)
-        ...
         return base_job_codes, base_substituicao
     except Exception as e:
         st.error(f"Erro ao carregar os dados: {e}")
@@ -31,7 +58,6 @@ def buscar_por_descricao(descricao_usuario, tfidf, matriz_tfidf, base_job_codes)
         indices_similares = similaridades.argsort()[0, -3:][::-1]
         opcoes = []
         for indice in indices_similares:
-            # Garantir que os índices estão dentro do range
             if indice < len(base_job_codes):
                 descricao_similar = base_job_codes.iloc[indice]['Descricao em 2024']
                 codigo_similar = base_job_codes.iloc[indice]['Job Code']
@@ -45,7 +71,7 @@ def buscar_por_descricao(descricao_usuario, tfidf, matriz_tfidf, base_job_codes)
         return []
 
 def registrar_feedback(descricao_usuario, codigo_escolhido):
-    ...
+    st.info(f"Feedback registrado para: {descricao_usuario} com código {codigo_escolhido}")
 
 # Interface do usuário
 st.title("Sistema de Sugestão de Job Codes")
@@ -87,6 +113,6 @@ if modo_busca == "Descrição da Atividade":
         else:
             st.warning("Por favor, insira uma descrição válida.")
 elif modo_busca == "Substituido":
-    ...
+    st.warning("Funcionalidade em desenvolvimento.")
 elif modo_busca == "Cargo e Gestor":
-    ...
+    st.warning("Funcionalidade em desenvolvimento.")
