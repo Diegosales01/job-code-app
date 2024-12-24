@@ -70,8 +70,9 @@ if modo_busca == "Descrição da Atividade":
             st.write(f"**Código:** {codigo}")
             st.write(f"**Descrição:** {descricao}")
         
-        opcao_selecionada = st.selectbox("Selecione a opção:", [f"Opção {i}" for i in range(1, 4)])
-        nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()))
+        opcao_selecionada = st.selectbox("Selecione a opção:", [f"Opção {i}" for i in range(1, len(st.session_state.opcoes_disponiveis) + 1)])
+        if opcao_selecionada:
+            nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()))
         
         if st.button("Confirmar Seleção"):
             indice = int(opcao_selecionada.split()[1]) - 1
