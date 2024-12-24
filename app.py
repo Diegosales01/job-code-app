@@ -25,7 +25,7 @@ stop_words = [
 
 # URLs dos arquivos Excel no GitHub
 BASE_JOB_CODES = "https://raw.githubusercontent.com/Diegosales01/job-code-app/main/Base_Job_Code_2024.xlsx"
-BASE_SUBSTITUICAO = "https://raw.githubusercontent.com/Diegosales01/job-code-app/main/Base_Substituicao.xlsx"
+BASE_SUBSTITUICAO = "https://raw.githubusercontent.com/Diegosales01/job-code-app/main/BASE_SUBSTITUICAO.xlsx"
 
 # Função para carregar bases de dados
 @st.cache_data
