@@ -105,11 +105,14 @@ elif modo_busca == "Substituido":
     if base_substituicao is not None:
         substituido = st.selectbox("Selecione o nome do substituído:", sorted(base_substituicao['Substituido'].dropna().unique()))
         if substituido:
-            resultado = base_substituicao[base_substituicao['Substituido'] == substituido].sort_values(by='Data Referencia', ascending=False)
-            st.markdown("### Resultados Encontrados")
-            for _, linha in resultado.iterrows():
-                st.write(f"**Job Code:** {linha['Job Code']}")
-                st.write(f"**Título:** {linha['Titulo Job Code']}")
+            # Selecionar apenas o último registro baseado na data mais recente
+            ultimo_registro = base_substituicao[base_substituicao['Substituido'] == substituido].sort_values(by='Data Referencia', ascending=False).iloc[0]
+            st.markdown("### Último Registro Encontrado")
+            st.write(f"**Job Code:** {ultimo_registro['Job Code']}")
+            st.write(f"**Título:** {ultimo_registro['Titulo Job Code']}")
+            st.write(f"**Cargo:** {ultimo_registro['Cargo']}")
+            st.write(f"**Gestor:** {ultimo_registro['Gestor']}")
+            st.write(f"**Data de Referência:** {ultimo_registro['Data Referencia']}")
     else:
         st.error("Base de substituição não carregada.")
 
