@@ -25,8 +25,24 @@ def carregar_bases():
         return None, None
 
 def buscar_por_descricao(descricao_usuario, tfidf, matriz_tfidf, base_job_codes):
-    ...
-    return opcoes
+    try:
+        descricao_usuario_tfidf = tfidf.transform([descricao_usuario])
+        similaridades = cosine_similarity(descricao_usuario_tfidf, matriz_tfidf)
+        indices_similares = similaridades.argsort()[0, -3:][::-1]
+        opcoes = []
+        for indice in indices_similares:
+            # Garantir que os índices estão dentro do range
+            if indice < len(base_job_codes):
+                descricao_similar = base_job_codes.iloc[indice]['Descricao em 2024']
+                codigo_similar = base_job_codes.iloc[indice]['Job Code']
+                titulo_similar = base_job_codes.iloc[indice]['Titulo em 2024']
+                opcoes.append((codigo_similar, descricao_similar, titulo_similar))
+            else:
+                st.warning(f"Índice {indice} fora do intervalo válido da base.")
+        return opcoes
+    except Exception as e:
+        st.error(f"Erro ao buscar descrição: {e}")
+        return []
 
 def registrar_feedback(descricao_usuario, codigo_escolhido):
     ...
