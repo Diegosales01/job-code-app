@@ -105,6 +105,12 @@ if modo_busca == "Descrição da Atividade":
     
     if st.session_state.opcoes_disponiveis:
         opcoes_disponiveis = st.session_state.opcoes_disponiveis
+        for i, (codigo, descricao, titulo) in enumerate(opcoes_disponiveis, 1):
+            st.markdown(f"### Opção {i}")
+            st.write(f"**Título:** {titulo}")
+            st.write(f"**Código:** {codigo}")
+            st.write(f"**Descrição:** {descricao}")
+        
         opcao_selecionada = st.selectbox("Selecione a opção:", [f"Opção {i+1}" for i in range(len(opcoes_disponiveis))])
         nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()))
 
