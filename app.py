@@ -5,7 +5,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # Stopwords estáticas em português
 stop_words = [
-    'de', 'a', 'o', 'que', 'e', 'do', 'da', 'em', 'um', 'para', 'é',
+    'de', 'a', 'o', 'que', 'e', 'do', 'da', 'em', 'um', 'para', 'e',
     'com', 'não', 'uma', 'os', 'no', 'se', 'na', 'por', 'mais', 'as',
     'dos', 'como', 'mas', 'foi', 'ao', 'ele', 'das', 'tem', 'à',
     'seu', 'sua', 'ou', 'ser', 'quando', 'muito', 'há', 'nos',
@@ -124,7 +124,7 @@ if modo_busca == "Descrição da Atividade":
                         st.write(f"**Código:** {codigo}")
                         st.write(f"**Descrição:** {descricao}")
                         if st.button(f"Selecionar Opção {i}", key=f"botao_{i}"):
-                            nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()))
+                            nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()), key=f"nivel_{i}")
                             complemento = NIVEIS_CARREIRA[nivel_carreira]
                             codigo_completo = f"{codigo}-{complemento}"
                             registrar_feedback(descricao_usuario, codigo_completo)
