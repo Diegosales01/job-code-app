@@ -25,7 +25,7 @@ stop_words = [
 
 # URLs das bases no GitHub
 BASE_JOB_CODES = "https://raw.githubusercontent.com/Diegosales01/job-code-app/refs/heads/main/Base_Job_Code_2024.xlsx"
-BASE_SUBSTITUICAO = "https://raw.githubusercontent.com/Diegosales01/job-code-app/refs/heads/main/Base_Substituicao.xlsx"
+BASE_SUBSTITUICAO = "https://raw.githubusercontent.com/Diegosales01/job-code-app/refs/heads/main/BASE_SUBSTITUICAO.xlsx"
 
 # Função para carregar bases
 @st.cache_data
