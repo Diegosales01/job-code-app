@@ -109,7 +109,7 @@ elif modo_busca == "Nome do Substituído":
             st.markdown("### Resultados Encontrados")
             for _, linha in resultado.iterrows():
                 st.write(f"**Job Code:** {linha['Job Code']}")
-                st.write(f"**Título:** {linha['Titulo']}")
+                st.write(f"**Título:** {linha['Titulo Job Code']}")
     else:
         st.error("Base de substituição não carregada.")
 
