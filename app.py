@@ -63,8 +63,6 @@ def buscar_por_descricao(descricao_usuario, tfidf, matriz_tfidf, base_job_codes)
                 codigo_similar = base_job_codes.iloc[indice]['Job Code']
                 titulo_similar = base_job_codes.iloc[indice]['Titulo em 2024']
                 opcoes.append((codigo_similar, descricao_similar, titulo_similar))
-            else:
-                st.warning(f"Índice {indice} fora do intervalo válido da base.")
         return opcoes
     except Exception as e:
         st.error(f"Erro ao buscar descrição: {e}")
@@ -77,42 +75,43 @@ def registrar_feedback(descricao_usuario, codigo_escolhido):
 st.title("Sistema de Sugestão de Job Codes")
 base_job_codes, base_substituicao = carregar_bases()
 
+# Inicialização de variáveis na sessão
+if "descricao_usuario" not in st.session_state:
+    st.session_state.descricao_usuario = ""
+if "opcoes_disponiveis" not in st.session_state:
+    st.session_state.opcoes_disponiveis = []
+if "codigo_selecionado" not in st.session_state:
+    st.session_state.codigo_selecionado = None
+
 # Seleção inicial
 modo_busca = st.radio("Como deseja buscar o Job Code?", ("Descrição da Atividade", "Substituido", "Cargo e Gestor"))
 
 if modo_busca == "Descrição da Atividade":
-    descricao_usuario = st.text_area("Digite a descrição do cargo:")
+    st.session_state.descricao_usuario = st.text_area("Digite a descrição do cargo:", st.session_state.descricao_usuario)
     if st.button("Buscar Código"):
-        if descricao_usuario.strip():
+        if st.session_state.descricao_usuario.strip():
             if base_job_codes is not None:
                 tfidf = TfidfVectorizer(stop_words=stop_words, min_df=1, ngram_range=(1, 2))
                 matriz_tfidf = tfidf.fit_transform(base_job_codes['Descricao em 2024'])
-                opcoes = buscar_por_descricao(descricao_usuario, tfidf, matriz_tfidf, base_job_codes)
+                opcoes = buscar_por_descricao(st.session_state.descricao_usuario, tfidf, matriz_tfidf, base_job_codes)
                 if opcoes:
-                    opcoes_disponiveis = []
-                    for i, (codigo, descricao, titulo) in enumerate(opcoes, 1):
-                        st.markdown(f"### Opção {i}")
-                        st.write(f"**Título:** {titulo}")
-                        st.write(f"**Código:** {codigo}")
-                        st.write(f"**Descrição:** {descricao}")
-                        opcoes_disponiveis.append((i, codigo, descricao_usuario))
-
-                    opcao_selecionada = st.selectbox("Selecione a opção:", [f"Opção {i}" for i, _, _ in opcoes_disponiveis])
-                    nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()))
-                    
-                    if st.button("Confirmar Seleção"):
-                        i, codigo, descricao_usuario = opcoes_disponiveis[int(opcao_selecionada.split()[1]) - 1]
-                        complemento = NIVEIS_CARREIRA[nivel_carreira]
-                        codigo_completo = f"{codigo}-{complemento}"
-                        registrar_feedback(descricao_usuario, codigo_completo)
-                        st.success(f"Código Completo: {codigo_completo}")
+                    st.session_state.opcoes_disponiveis = opcoes
                 else:
                     st.warning("Nenhuma opção encontrada.")
             else:
                 st.error("Erro ao carregar os dados.")
         else:
             st.warning("Por favor, insira uma descrição válida.")
-elif modo_busca == "Substituido":
-    st.warning("Funcionalidade em desenvolvimento.")
-elif modo_busca == "Cargo e Gestor":
-    st.warning("Funcionalidade em desenvolvimento.")
+    
+    if st.session_state.opcoes_disponiveis:
+        opcoes_disponiveis = st.session_state.opcoes_disponiveis
+        opcao_selecionada = st.selectbox("Selecione a opção:", [f"Opção {i+1}" for i in range(len(opcoes_disponiveis))])
+        nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()))
+
+        if st.button("Confirmar Seleção"):
+            i = int(opcao_selecionada.split()[1]) - 1
+            codigo, descricao, _ = opcoes_disponiveis[i]
+            complemento = NIVEIS_CARREIRA[nivel_carreira]
+            st.session_state.codigo_selecionado = f"{codigo}-{complemento}"
+            registrar_feedback(st.session_state.descricao_usuario, st.session_state.codigo_selecionado)
+            st.success(f"Código Completo Selecionado: {st.session_state.codigo_selecionado}")
