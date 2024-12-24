@@ -27,23 +27,54 @@ stop_words = [
 BASE_JOB_CODES = "https://raw.githubusercontent.com/Diegosales01/job-code-app/refs/heads/main/Base_Job_Code_2024.xlsx"
 BASE_SUBSTITUICAO = "https://raw.githubusercontent.com/Diegosales01/job-code-app/refs/heads/main/BASE_SUBSTITUICAO.xlsx"
 
+# Mapeamento dos níveis de carreira
+NIVEIS_CARREIRA = {
+    "PRESIDENTE": "EX-19",
+    "VICE PRESIDENTE": "EX-18",
+    "DIRETOR II": "EX-17",
+    "DIRETOR I": "EX-16",
+    "GERENTE EXECUTIVO": "M3-14",
+    "GERENTE II": "M2-13",
+    "GERENTE I": "M2-12",
+    "LÍDER TÉCNICO I": "M2-12",
+    "LÍDER TÉCNICO II": "M2-13",
+    "COORDENADOR I": "M1-10",
+    "COORDENADOR II": "M1-11",
+    "ESPECIALISTA I": "M1-10",
+    "ESPECIALISTA II": "M1-11",
+    "ANALISTA III": "P3-11",
+    "ANALISTA III (COMERCIAL)": "S3-11",
+    "ANALISTA II": "P2-10",
+    "ANALISTA II (COMERCIAL)": "S2-10",
+    "ANALISTA I": "P1-08",
+    "ANALISTA I (COMERCIAL)": "S1-08",
+    "ASSISTENTE (ATENDIMENTO)": "T2-06",
+    "ASSISTENTE": "U2-06",
+    "AUXILIAR": "U2-05",
+    "AUXILIAR (ATENDIMENTO)": "T2-05",
+    "SUPERVISOR III (ATENDIMENTO)": "S3-11",
+    "SUPERVISOR II (ATENDIMENTO)": "P2-10",
+    "SUPERVISOR I (ATENDIMENTO)": "T4-09",
+    "ASSISTENTE (ATENDIMENTO)": "U1-04"
+}
+
 # Função para carregar bases
 @st.cache_data
 def carregar_bases():
     try:
         base_job_codes = pd.read_excel(BASE_JOB_CODES)
         base_substituicao = pd.read_excel(BASE_SUBSTITUICAO)
-        
+
         # Verificar colunas necessárias
         colunas_necessarias = ['Substituido', 'Cargo', 'Gestor', 'Data Referencia']
         for coluna in colunas_necessarias:
             if coluna not in base_substituicao.columns:
                 raise ValueError(f"A coluna '{coluna}' não foi encontrada na base de substituição.")
-        
+
         # Tratar valores nulos
         base_substituicao['Gestor'] = base_substituicao['Gestor'].fillna("Gestor Não Informado")
         base_substituicao['Cargo'] = base_substituicao['Cargo'].fillna("Cargo Não Informado")
-        
+
         return base_job_codes, base_substituicao
     except Exception as e:
         st.error(f"Erro ao carregar os dados: {e}")
@@ -93,7 +124,11 @@ if modo_busca == "Descrição da Atividade":
                         st.write(f"**Código:** {codigo}")
                         st.write(f"**Descrição:** {descricao}")
                         if st.button(f"Selecionar Opção {i}", key=f"botao_{i}"):
-                            registrar_feedback(descricao_usuario, codigo)
+                            nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()))
+                            complemento = NIVEIS_CARREIRA[nivel_carreira]
+                            codigo_completo = f"{codigo}-{complemento}"
+                            registrar_feedback(descricao_usuario, codigo_completo)
+                            st.success(f"Código Completo: {codigo_completo}")
                 else:
                     st.warning("Nenhuma opção encontrada.")
             else:
