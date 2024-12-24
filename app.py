@@ -101,9 +101,9 @@ if modo_busca == "Descrição da Atividade":
         else:
             st.warning("Por favor, insira uma descrição válida.")
 
-elif modo_busca == "Nome do Substituído":
+elif modo_busca == "Substituido":
     if base_substituicao is not None:
-        substituido = st.selectbox("Selecione o nome do substituído:", sorted(base_substituicao['Substituido'].unique()))
+        substituido = st.selectbox("Selecione o nome do substituído:", sorted(base_substituicao['Substituido'].dropna().unique()))
         if substituido:
             resultado = base_substituicao[base_substituicao['Substituido'] == substituido].sort_values(by='Data Referencia', ascending=False)
             st.markdown("### Resultados Encontrados")
