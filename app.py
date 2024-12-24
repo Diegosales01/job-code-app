@@ -35,7 +35,7 @@ def carregar_bases():
         base_substituicao = pd.read_excel(BASE_SUBSTITUICAO)
         
         # Verificar colunas necessárias
-        colunas_necessarias = ['Nome Substituído', 'Cargo', 'Gestor', 'Data Referência']
+        colunas_necessarias = ['Substituido', 'Cargo', 'Gestor', 'Data Referência']
         for coluna in colunas_necessarias:
             if coluna not in base_substituicao.columns:
                 raise ValueError(f"A coluna '{coluna}' não foi encontrada na base de substituição.")
