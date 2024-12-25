@@ -72,12 +72,16 @@ if modo_busca == "Descrição da Atividade":
         
         opcao_selecionada = st.selectbox("Selecione a opção:", [f"Opção {i}" for i in range(1, len(st.session_state.opcoes_disponiveis) + 1)])
         if opcao_selecionada:
-            nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()))
-        
+            # Adicionado verificação para garantir que NIVEIS_CARREIRA esteja inicializado
+            if NIVEIS_CARREIRA and isinstance(NIVEIS_CARREIRA, dict):
+                nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()))
+            else:
+                st.warning("Níveis de carreira não disponíveis no momento.")
+
         if st.button("Confirmar Seleção"):
             indice = int(opcao_selecionada.split()[1]) - 1
             codigo, _, _ = st.session_state.opcoes_disponiveis[indice]
-            complemento = NIVEIS_CARREIRA[nivel_carreira]
+            complemento = NIVEIS_CARREIRA.get(nivel_carreira, "Padrão")
             st.session_state.codigo_selecionado = f"{codigo}-{complemento}"
             registrar_feedback(st.session_state.descricao_usuario, st.session_state.codigo_selecionado)
             st.success(f"Código Completo Selecionado: {st.session_state.codigo_selecionado}")
