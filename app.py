@@ -68,6 +68,17 @@ def buscar_por_descricao(descricao_usuario, tfidf, matriz_tfidf, base_job_codes)
         st.error(f"Erro ao buscar descrição: {e}")
         return []
 
+def buscar_por_substituido(substituido, base_substituicao):
+    resultados = base_substituicao[base_substituicao['Substituido'].str.contains(substituido, case=False, na=False)]
+    return resultados
+
+def buscar_por_cargo_e_gestor(cargo, gestor, base_substituicao):
+    resultados = base_substituicao[
+        (base_substituicao['Cargo'].str.contains(cargo, case=False, na=False)) &
+        (base_substituicao['Gestor'].str.contains(gestor, case=False, na=False))
+    ]
+    return resultados
+
 def registrar_feedback(descricao_usuario, codigo_escolhido):
     st.info(f"Feedback registrado para: {descricao_usuario} com código {codigo_escolhido}")
 
@@ -121,3 +132,22 @@ if modo_busca == "Descrição da Atividade":
             st.session_state.codigo_selecionado = f"{codigo}-{complemento}"
             registrar_feedback(st.session_state.descricao_usuario, st.session_state.codigo_selecionado)
             st.success(f"Código Completo Selecionado: {st.session_state.codigo_selecionado}")
+
+elif modo_busca == "Substituido":
+    substituido = st.text_input("Digite o nome do substituído:")
+    if st.button("Buscar por Substituído"):
+        if base_substituicao is not None:
+            resultados = buscar_por_substituido(substituido, base_substituicao)
+            st.write(resultados)
+        else:
+            st.error("Erro ao carregar os dados.")
+
+elif modo_busca == "Cargo e Gestor":
+    cargo = st.text_input("Digite o cargo:")
+    gestor = st.text_input("Digite o nome do gestor:")
+    if st.button("Buscar por Cargo e Gestor"):
+        if base_substituicao is not None:
+            resultados = buscar_por_cargo_e_gestor(cargo, gestor, base_substituicao)
+            st.write(resultados)
+        else:
+            st.error("Erro ao carregar os dados.")
