@@ -72,6 +72,37 @@ base_job_codes, base_substituicao = carregar_bases()
 # Seleção inicial
 modo_busca = st.radio("Como deseja buscar o Job Code?", ("Descrição da Atividade", "Substituido", "Cargo e Gestor"))
 
+
+
+elif modo_busca == "Substituido":
+    if base_substituicao is not None:
+        substituido = st.selectbox("Selecione o nome do substituído:", sorted(base_substituicao['Substituido'].dropna().unique()))
+        if substituido:
+            # Selecionar apenas o último registro baseado na data mais recente
+            ultimo_registro = base_substituicao[base_substituicao['Substituido'] == substituido].sort_values(by='Data Referencia', ascending=False).iloc[0]
+            st.markdown("### Último Registro Encontrado")
+            st.write(f"**Job Code:** {ultimo_registro['Job Code']}")
+            st.write(f"**Título:** {ultimo_registro['Titulo Job Code']}")
+            st.write(f"**Cargo:** {ultimo_registro['Cargo']}")
+            st.write(f"**Gestor:** {ultimo_registro['Gestor']}")
+            st.write(f"**Data de Referência:** {ultimo_registro['Data Referencia']}")
+    else:
+        st.error("Base de substituição não carregada.")
+
+elif modo_busca == "Cargo e Gestor":
+    if base_substituicao is not None:
+        cargo = st.selectbox("Selecione o cargo:", sorted(base_substituicao['Cargo'].unique()))
+        gestor = st.selectbox("Selecione o gestor:", sorted(base_substituicao['Gestor'].unique()))
+        if cargo and gestor:
+            resultado = base_substituicao[(base_substituicao['Cargo'] == cargo) & (base_substituicao['Gestor'] == gestor)].sort_values(by='Data Referencia', ascending=False)
+            if not resultado.empty:
+                st.markdown("### Resultados Encontrados")
+                for _, linha in resultado.iterrows():
+                    st.write(f"**Job Code:** {linha['Job Code']}")
+                    st.write(f"**Título:** {linha['Titulo']}")
+            else:
+                st.warning("Nenhum resultado encontrado para a combinação selecionada.")
+
 if modo_busca == "Descrição da Atividade":
     descricao_usuario = st.text_area("Digite a descrição do cargo:")
     if st.button("Buscar Código"):
@@ -102,34 +133,5 @@ if modo_busca == "Descrição da Atividade":
                 st.error("Erro ao carregar os dados.")
         else:
             st.warning("Por favor, insira uma descrição válida.")
-
-elif modo_busca == "Substituido":
-    if base_substituicao is not None:
-        substituido = st.selectbox("Selecione o nome do substituído:", sorted(base_substituicao['Substituido'].dropna().unique()))
-        if substituido:
-            # Selecionar apenas o último registro baseado na data mais recente
-            ultimo_registro = base_substituicao[base_substituicao['Substituido'] == substituido].sort_values(by='Data Referencia', ascending=False).iloc[0]
-            st.markdown("### Último Registro Encontrado")
-            st.write(f"**Job Code:** {ultimo_registro['Job Code']}")
-            st.write(f"**Título:** {ultimo_registro['Titulo Job Code']}")
-            st.write(f"**Cargo:** {ultimo_registro['Cargo']}")
-            st.write(f"**Gestor:** {ultimo_registro['Gestor']}")
-            st.write(f"**Data de Referência:** {ultimo_registro['Data Referencia']}")
-    else:
-        st.error("Base de substituição não carregada.")
-
-elif modo_busca == "Cargo e Gestor":
-    if base_substituicao is not None:
-        cargo = st.selectbox("Selecione o cargo:", sorted(base_substituicao['Cargo'].unique()))
-        gestor = st.selectbox("Selecione o gestor:", sorted(base_substituicao['Gestor'].unique()))
-        if cargo and gestor:
-            resultado = base_substituicao[(base_substituicao['Cargo'] == cargo) & (base_substituicao['Gestor'] == gestor)].sort_values(by='Data Referencia', ascending=False)
-            if not resultado.empty:
-                st.markdown("### Resultados Encontrados")
-                for _, linha in resultado.iterrows():
-                    st.write(f"**Job Code:** {linha['Job Code']}")
-                    st.write(f"**Título:** {linha['Titulo']}")
-            else:
-                st.warning("Nenhum resultado encontrado para a combinação selecionada.")
     else:
         st.error("Base de substituição não carregada.")
