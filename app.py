@@ -1,3 +1,5 @@
+código atual, funciona busca por substituído e por cargo e gestor
+
 import streamlit as st
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -74,6 +76,14 @@ modo_busca = st.radio("Como deseja buscar o Job Code?", ("Descrição da Ativida
 
 if modo_busca == "Descrição da Atividade":
     descricao_usuario = st.text_area("Digite a descrição do cargo:")
+
+    # Manter estado das opções e da seleção usando session_state
+    if "opcoes_descricao" not in st.session_state:
+        st.session_state.opcoes_descricao = []
+
+    if "selecao_descricao" not in st.session_state:
+        st.session_state.selecao_descricao = None
+
     if st.button("Buscar Código"):
         if descricao_usuario.strip():
             if base_job_codes is not None:
@@ -81,21 +91,40 @@ if modo_busca == "Descrição da Atividade":
                 matriz_tfidf = tfidf.fit_transform(base_job_codes['Descricao em 2024'])
                 similaridades = cosine_similarity(tfidf.transform([descricao_usuario]), matriz_tfidf)
                 indices_similares = similaridades.argsort()[0, -3:][::-1]
-                opcoes = [(base_job_codes.iloc[i]['Job Code'], base_job_codes.iloc[i]['Descricao em 2024'], base_job_codes.iloc[i]['Titulo em 2024']) for i in indices_similares if i < len(base_job_codes)]
-                if opcoes:
-                    for i, (codigo, descricao, titulo) in enumerate(opcoes, 1):
-                        st.markdown(f"### Opção {i}")
-                        st.write(f"**Título:** {titulo}")
-                        st.write(f"**Código:** {codigo}")
-                        st.write(f"**Descrição:** {descricao}")
-                    opcao_selecionada = st.selectbox("Selecione a opção:", [f"Opção {i+1}" for i in range(len(opcoes))])
-                    nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()))
-                    if st.button("Confirmar Seleção"):
-                        codigo, _, _ = opcoes[int(opcao_selecionada.split()[1]) - 1]
-                        complemento = NIVEIS_CARREIRA[nivel_carreira]
-                        codigo_completo = f"{codigo}-{complemento}"
-                        registrar_feedback(descricao_usuario, codigo_completo)
-                        st.success(f"Código Completo Selecionado: {codigo_completo}")
+                st.session_state.opcoes_descricao = [
+                    (base_job_codes.iloc[i]['Job Code'], base_job_codes.iloc[i]['Descricao em 2024'], base_job_codes.iloc[i]['Titulo em 2024'])
+                    for i in indices_similares if i < len(base_job_codes)
+                ]
+                if not st.session_state.opcoes_descricao:
+                    st.warning("Nenhuma opção encontrada.")
+            else:
+                st.error("Erro ao carregar os dados.")
+        else:
+            st.warning("Por favor, insira uma descrição válida.")
+
+    # Mostrar opções caso existam
+    if st.session_state.opcoes_descricao:
+        for i, (codigo, descricao, titulo) in enumerate(st.session_state.opcoes_descricao, 1):
+            st.markdown(f"### Opção {i}")
+            st.write(f"**Título:** {titulo}")
+            st.write(f"**Código:** {codigo}")
+            st.write(f"**Descrição:** {descricao}")
+
+        opcao_selecionada = st.selectbox(
+            "Selecione a opção:",
+            [f"Opção {i}" for i in range(1, len(st.session_state.opcoes_descricao) + 1)],
+            key="selecao_descricao"
+        )
+        nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()))
+
+        if st.button("Confirmar Seleção"):
+            index_selecionado = int(opcao_selecionada.split()[1]) - 1
+            codigo, _, _ = st.session_state.opcoes_descricao[index_selecionado]
+            complemento = NIVEIS_CARREIRA[nivel_carreira]
+            codigo_completo = f"{codigo}-{complemento}"
+            registrar_feedback(descricao_usuario, codigo_completo)
+            st.success(f"Código Completo Selecionado: {codigo_completo}")
+
                 else:
                     st.warning("Nenhuma opção encontrada.")
             else:
