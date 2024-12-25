@@ -79,7 +79,7 @@ if base is not None:
                 for i, (index, row) in enumerate(suggestions.iterrows()):
                     st.write(f"{i + 1}. **Código:** {row['codigo']} **Descrição:** {row['descricao']}")
   
-**Pontuação:** {scores[i]:.2f}  
+st.write(f"{i + 1}. **Código:** {row['codigo']} **Descrição:** {row['descricao']} **Pontuação:** {scores[i]:.2f}") 
 **Descrição:** {row[column]}")
 
                 feedback = st.radio("Escolha a sugestão mais adequada:", ["Nenhuma"] + [f"Sugestão {i + 1}" for i in range(len(suggestions))])
