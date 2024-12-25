@@ -11,7 +11,14 @@ BASE_JOB_CODES = "https://raw.githubusercontent.com/Diegosales01/job-code-app/re
 BASE_SUBSTITUICAO = "https://raw.githubusercontent.com/Diegosales01/job-code-app/refs/heads/main/BASE_SUBSTITUICAO.xlsx"
 
 # Mapeamento dos níveis de carreira
-NIVEIS_CARREIRA = { ... }  # Mesma definição anterior
+NIVEIS_CARREIRA = {
+    "Nível Júnior": "J1",
+    "Nível Pleno": "P2",
+    "Nível Sênior": "S3",
+    "Nível Especialista": "E4",
+    "Nível Gerente": "G5",
+    "Nível Diretor": "D6"
+}
 
 @st.cache_data
 def carregar_bases():
@@ -71,18 +78,15 @@ if modo_busca == "Descrição da Atividade":
             st.write(f"**Descrição:** {descricao}")
         
         opcao_selecionada = st.selectbox("Selecione a opção:", [f"Opção {i}" for i in range(1, len(st.session_state.opcoes_disponiveis) + 1)])
-        if opcao_selecionada:
-            # Adicionado verificação para garantir que NIVEIS_CARREIRA esteja inicializado
-            if NIVEIS_CARREIRA and isinstance(NIVEIS_CARREIRA, dict):
-                nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()))
-            else:
-                st.warning("Níveis de carreira não disponíveis no momento.")
-
+        
+        # Seleção do nível de carreira
+        nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()))
+        
         if st.button("Confirmar Seleção"):
             indice = int(opcao_selecionada.split()[1]) - 1
             codigo, _, _ = st.session_state.opcoes_disponiveis[indice]
             complemento = NIVEIS_CARREIRA.get(nivel_carreira, "Padrão")
-            st.session_state.codigo_selecionado = f"{codigo}-{complemento}"
+            st.session_state.codigo_selecionado = f"{codigo}-{complemento}-10"
             registrar_feedback(st.session_state.descricao_usuario, st.session_state.codigo_selecionado)
             st.success(f"Código Completo Selecionado: {st.session_state.codigo_selecionado}")
 
