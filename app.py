@@ -77,7 +77,8 @@ if base is not None:
                 st.write("### Sugestões de Job Code:")
 
                 for i, (index, row) in enumerate(suggestions.iterrows()):
-                    st.write(f"{i + 1}. **Código:** {row['codigo']}  
+                    st.write(f"{i + 1}. **Código:** {row['codigo']} **Descrição:** {row['descricao']}")
+  
 **Pontuação:** {scores[i]:.2f}  
 **Descrição:** {row[column]}")
 
