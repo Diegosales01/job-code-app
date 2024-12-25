@@ -64,6 +64,15 @@ def carregar_bases():
     try:
         base_job_codes = pd.read_excel(BASE_JOB_CODES)
         base_substituicao = pd.read_excel(BASE_SUBSTITUICAO)
+
+        colunas_necessarias = ['Substituido', 'Cargo', 'Gestor', 'Data Referencia']
+        for coluna in colunas_necessarias:
+            if coluna not in base_substituicao.columns:
+                raise ValueError(f"A coluna '{coluna}' não foi encontrada na base de substituição.")
+
+        base_substituicao['Gestor'] = base_substituicao['Gestor'].fillna("Gestor Não Informado")
+        base_substituicao['Cargo'] = base_substituicao['Cargo'].fillna("Cargo Não Informado")
+
         return base_job_codes, base_substituicao
     except Exception as e:
         st.error(f"Erro ao carregar os dados: {e}")
@@ -85,8 +94,10 @@ def buscar_por_descricao(descricao_usuario, tfidf, matriz_tfidf, base_job_codes)
 # Função para registrar feedback
 def registrar_feedback(descricao_usuario, codigo_escolhido):
     feedback = {'Descricao do Usuario': descricao_usuario, 'Job Code Escolhido': codigo_escolhido}
+    feedback_df = pd.DataFrame([feedback])
     feedback_csv = 'feedback_usuario.csv'
-    pd.DataFrame([feedback]).to_csv(feedback_csv, mode='a', index=False, header=False)
+    feedback_df.to_csv(feedback_csv, mode='a', index=False, header=not st.session_state.feedback_existe)
+    st.session_state.feedback_existe = True
     st.success("Feedback registrado com sucesso!")
 
 # Interface do usuário
@@ -100,19 +111,55 @@ if modo_busca == "Descrição da Atividade":
     descricao_usuario = st.text_area("Digite a descrição do cargo:")
     if st.button("Buscar Código"):
         if descricao_usuario.strip():
-            tfidf = TfidfVectorizer(stop_words=stop_words)
-            matriz_tfidf = tfidf.fit_transform(base_job_codes['Descricao em 2024'])
-            opcoes = buscar_por_descricao(descricao_usuario, tfidf, matriz_tfidf, base_job_codes)
-            if opcoes:
-                for i, (codigo, descricao, titulo) in enumerate(opcoes, 1):
-                    st.markdown(f"### Opção {i}")
-                    st.write(f"**Título:** {titulo}")
-                    st.write(f"**Descrição:** {descricao}")
-                    nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()), key=f"nivel_{i}")
-                    if st.button(f"Selecionar Opção {i}", key=f"botao_{i}"):
-                        complemento = NIVEIS_CARREIRA[nivel_carreira]
-                        codigo_completo = f"{codigo}-{complemento}"
-                        registrar_feedback(descricao_usuario, codigo_completo)
-                        st.success(f"Código Completo Selecionado: {codigo_completo}")
+            if base_job_codes is not None:
+                tfidf = TfidfVectorizer(stop_words=stop_words, min_df=1, ngram_range=(1, 2))
+                matriz_tfidf = tfidf.fit_transform(base_job_codes['Descricao em 2024'])
+                opcoes = buscar_por_descricao(descricao_usuario, tfidf, matriz_tfidf, base_job_codes)
+                if opcoes:
+                    for i, (codigo, descricao, titulo) in enumerate(opcoes, 1):
+                        st.markdown(f"### Opção {i}")
+                        st.write(f"**Título:** {titulo}")
+                        st.write(f"**Código:** {codigo}")
+                        st.write(f"**Descrição:** {descricao}")
+                        if st.button(f"Selecionar Opção {i}", key=f"botao_{i}"):
+                            nivel_carreira = st.selectbox("Selecione o nível de carreira:", list(NIVEIS_CARREIRA.keys()), key=f"nivel_{i}")
+                            complemento = NIVEIS_CARREIRA[nivel_carreira]
+                            codigo_completo = f"{codigo}-{complemento}"
+                            registrar_feedback(descricao_usuario, codigo_completo)
+                            st.success(f"JOB CODE SELECIONADO: {codigo_completo}")
+                else:
+                    st.warning("Nenhuma opção encontrada.")
             else:
-                st.warning("Nenhuma opção encontrada.")
+                st.error("Erro ao carregar os dados.")
+        else:
+            st.warning("Por favor, insira uma descrição válida.")
+
+elif modo_busca == "Substituido":
+    if base_substituicao is not None:
+        substituido = st.selectbox("Selecione o nome do substituído:", sorted(base_substituicao['Substituido'].dropna().unique()))
+        if substituido:
+            ultimo_registro = base_substituicao[base_substituicao['Substituido'] == substituido].sort_values(by='Data Referencia', ascending=False).iloc[0]
+            st.markdown("### Último Registro Encontrado")
+            st.write(f"**Job Code:** {ultimo_registro['Job Code']}")
+            st.write(f"**Título:** {ultimo_registro['Titulo Job Code']}")
+            st.write(f"**Cargo:** {ultimo_registro['Cargo']}")
+            st.write(f"**Gestor:** {ultimo_registro['Gestor']}")
+            st.write(f"**Data de Referência:** {ultimo_registro['Data Referencia']}")
+    else:
+        st.error("Base de substituição não carregada.")
+
+elif modo_busca == "Cargo e Gestor":
+    if base_substituicao is not None:
+        cargo = st.selectbox("Selecione o cargo:", sorted(base_substituicao['Cargo'].unique()))
+        gestor = st.selectbox("Selecione o gestor:", sorted(base_substituicao['Gestor'].unique()))
+        if cargo and gestor:
+            resultado = base_substituicao[(base_substituicao['Cargo'] == cargo) & (base_substituicao['Gestor'] == gestor)].sort_values(by='Data Referencia', ascending=False)
+            if not resultado.empty:
+                st.markdown("### Resultados Encontrados")
+                for _, linha in resultado.iterrows():
+                    st.write(f"**Job Code:** {linha['Job Code']}")
+                    st.write(f"**Título:** {linha['Titulo']}")
+            else:
+                st.warning("Nenhum resultado encontrado para a combinação selecionada.")
+    else:
+        st.error("Base de substituição não carregada.")
