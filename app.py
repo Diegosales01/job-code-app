@@ -74,7 +74,7 @@ modo_busca = st.radio("Como deseja buscar o Job Code?", ("Descrição da Ativida
 
 
 
-if modo_busca == "Substituido":
+elif modo_busca == "Substituido":
     if base_substituicao is not None:
         substituido = st.selectbox("Selecione o nome do substituído:", sorted(base_substituicao['Substituido'].dropna().unique()))
         if substituido:
@@ -103,7 +103,7 @@ elif modo_busca == "Cargo e Gestor":
             else:
                 st.warning("Nenhum resultado encontrado para a combinação selecionada.")
 
-if modo_busca == "Descrição da Atividade":
+elif modo_busca == "Descrição da Atividade":
     descricao_usuario = st.text_area("Digite a descrição do cargo:")
     if st.button("Buscar Código"):
         if descricao_usuario.strip():
