@@ -1,12 +1,10 @@
-código atual, funciona busca por substituído e por cargo e gestor
-
 import streamlit as st
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Stopwords estáticas em português
-stop_words = [...]
+stop_words = [...]  # Substitua pelas suas stopwords
 
 # URLs das bases no GitHub
 BASE_JOB_CODES = "https://raw.githubusercontent.com/Diegosales01/job-code-app/refs/heads/main/Base_Job_Code_2024.xlsx"
@@ -53,6 +51,10 @@ def carregar_bases():
         st.error(f"Erro ao carregar os dados: {e}")
         return None, None
 
+def registrar_feedback(entrada, codigo_escolhido):
+    st.info(f"Feedback registrado para: {entrada} com código {codigo_escolhido}")
+
+# Funções de busca
 def buscar_por_substituido(substituido, base_substituicao):
     resultados = base_substituicao[base_substituicao['Substituido'].str.contains(substituido, case=False, na=False)]
     return resultados[['Substituido', 'Job Code', 'Descricao']].values.tolist()
@@ -63,9 +65,6 @@ def buscar_por_cargo_e_gestor(cargo, gestor, base_substituicao):
         (base_substituicao['Gestor'].str.contains(gestor, case=False, na=False))
     ]
     return resultados[['Cargo', 'Gestor', 'Job Code', 'Descricao']].values.tolist()
-
-def registrar_feedback(entrada, codigo_escolhido):
-    st.info(f"Feedback registrado para: {entrada} com código {codigo_escolhido}")
 
 # Interface do usuário
 st.title("Sistema de Sugestão de Job Codes")
@@ -125,13 +124,6 @@ if modo_busca == "Descrição da Atividade":
             registrar_feedback(descricao_usuario, codigo_completo)
             st.success(f"Código Completo Selecionado: {codigo_completo}")
 
-                else:
-                    st.warning("Nenhuma opção encontrada.")
-            else:
-                st.error("Erro ao carregar os dados.")
-        else:
-            st.warning("Por favor, insira uma descrição válida.")
-
 elif modo_busca == "Substituido":
     if base_substituicao is not None:
         substituido = st.selectbox("Selecione o nome do substituído:", sorted(base_substituicao['Substituido'].dropna().unique()))
@@ -143,14 +135,14 @@ elif modo_busca == "Substituido":
             st.write(f"**Título:** {ultimo_registro['Titulo Job Code']}")
             st.write(f"**Cargo:** {ultimo_registro['Cargo']}")
             st.write(f"**Gestor:** {ultimo_registro['Gestor']}")
-            
+            st.write(f"**Data de Referência:** {ultimo_registro['Data Referencia']}")
     else:
         st.error("Base de substituição não carregada.")
 
 elif modo_busca == "Cargo e Gestor":
     if base_substituicao is not None:
-        cargo = st.selectbox("Selecione o cargo:", sorted(base_substituicao['Cargo'].unique()))
-        gestor = st.selectbox("Selecione o gestor:", sorted(base_substituicao['Gestor'].unique()))
+        cargo = st.selectbox("Selecione o cargo:", sorted(base_substituicao['Cargo'].dropna().unique()))
+        gestor = st.selectbox("Selecione o gestor:", sorted(base_substituicao['Gestor'].dropna().unique()))
         if cargo and gestor:
             resultado = base_substituicao[(base_substituicao['Cargo'] == cargo) & (base_substituicao['Gestor'] == gestor)].sort_values(by='Data Referencia', ascending=False)
             if not resultado.empty:
