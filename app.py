@@ -74,7 +74,7 @@ modo_busca = st.radio("Como deseja buscar o Job Code?", ("Descrição da Ativida
 
 
 
-elif modo_busca == "Substituido":
+if modo_busca == "Substituido":
     if base_substituicao is not None:
         substituido = st.selectbox("Selecione o nome do substituído:", sorted(base_substituicao['Substituido'].dropna().unique()))
         if substituido:
