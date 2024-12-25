@@ -70,14 +70,14 @@ def buscar_por_descricao(descricao_usuario, tfidf, matriz_tfidf, base_job_codes)
 
 def buscar_por_substituido(substituido, base_substituicao):
     resultados = base_substituicao[base_substituicao['Substituido'].str.contains(substituido, case=False, na=False)]
-    return resultados
+    return resultados[['Substituido', 'Job Code', 'Descricao']].values.tolist()
 
 def buscar_por_cargo_e_gestor(cargo, gestor, base_substituicao):
     resultados = base_substituicao[
         (base_substituicao['Cargo'].str.contains(cargo, case=False, na=False)) &
         (base_substituicao['Gestor'].str.contains(gestor, case=False, na=False))
     ]
-    return resultados
+    return resultados[['Cargo', 'Gestor', 'Job Code', 'Descricao']].values.tolist()
 
 def registrar_feedback(descricao_usuario, codigo_escolhido):
     st.info(f"Feedback registrado para: {descricao_usuario} com código {codigo_escolhido}")
@@ -138,7 +138,11 @@ elif modo_busca == "Substituido":
     if st.button("Buscar por Substituído"):
         if base_substituicao is not None:
             resultados = buscar_por_substituido(substituido, base_substituicao)
-            st.write(resultados)
+            if resultados:
+                for item in resultados:
+                    st.write(f"**Substituído:** {item[0]}, **Job Code:** {item[1]}, **Descrição:** {item[2]}")
+            else:
+                st.warning("Nenhum resultado encontrado.")
         else:
             st.error("Erro ao carregar os dados.")
 
@@ -148,6 +152,10 @@ elif modo_busca == "Cargo e Gestor":
     if st.button("Buscar por Cargo e Gestor"):
         if base_substituicao is not None:
             resultados = buscar_por_cargo_e_gestor(cargo, gestor, base_substituicao)
-            st.write(resultados)
+            if resultados:
+                for item in resultados:
+                    st.write(f"**Cargo:** {item[0]}, **Gestor:** {item[1]}, **Job Code:** {item[2]}, **Descrição:** {item[3]}")
+            else:
+                st.warning("Nenhum resultado encontrado.")
         else:
             st.error("Erro ao carregar os dados.")
