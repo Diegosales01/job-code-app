@@ -1,3 +1,5 @@
+código oficial
+
 import streamlit as st
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -104,32 +106,32 @@ if modo_busca == "Descrição da Atividade":
             st.warning("Por favor, insira uma descrição válida.")
 
 elif modo_busca == "Substituido":
-    substituido = st.text_input("Digite o nome do substituído:")
-    if st.button("Buscar por Substituído"):
-        if base_substituicao is not None:
-            resultados = buscar_por_substituido(substituido, base_substituicao)
-            if resultados:
-                opcoes_substituido = [f"{item[0]} - {item[1]}: {item[2]}" for item in resultados]
-                opcao = st.selectbox("Selecione a opção:", opcoes_substituido)
-                if opcao:
-                    st.success(f"Opção selecionada: {opcao}")
-            else:
-                st.warning("Nenhum resultado encontrado.")
-        else:
-            st.error("Erro ao carregar os dados.")
+    if base_substituicao is not None:
+        substituido = st.selectbox("Selecione o nome do substituído:", sorted(base_substituicao['Substituido'].dropna().unique()))
+        if substituido:
+            # Selecionar apenas o último registro baseado na data mais recente
+            ultimo_registro = base_substituicao[base_substituicao['Substituido'] == substituido].sort_values(by='Data Referencia', ascending=False).iloc[0]
+            st.markdown("### Último Registro Encontrado")
+            st.write(f"**Job Code:** {ultimo_registro['Job Code']}")
+            st.write(f"**Título:** {ultimo_registro['Titulo Job Code']}")
+            st.write(f"**Cargo:** {ultimo_registro['Cargo']}")
+            st.write(f"**Gestor:** {ultimo_registro['Gestor']}")
+            st.write(f"**Data de Referência:** {ultimo_registro['Data Referencia']}")
+    else:
+        st.error("Base de substituição não carregada.")
 
 elif modo_busca == "Cargo e Gestor":
-    cargo = st.text_input("Digite o cargo:")
-    gestor = st.text_input("Digite o nome do gestor:")
-    if st.button("Buscar por Cargo e Gestor"):
-        if base_substituicao is not None:
-            resultados = buscar_por_cargo_e_gestor(cargo, gestor, base_substituicao)
-            if resultados:
-                opcoes_cargo_gestor = [f"{item[0]} - {item[1]}: {item[2]} ({item[3]})" for item in resultados]
-                opcao = st.selectbox("Selecione a opção:", opcoes_cargo_gestor)
-                if opcao:
-                    st.success(f"Opção selecionada: {opcao}")
+    if base_substituicao is not None:
+        cargo = st.selectbox("Selecione o cargo:", sorted(base_substituicao['Cargo'].unique()))
+        gestor = st.selectbox("Selecione o gestor:", sorted(base_substituicao['Gestor'].unique()))
+        if cargo and gestor:
+            resultado = base_substituicao[(base_substituicao['Cargo'] == cargo) & (base_substituicao['Gestor'] == gestor)].sort_values(by='Data Referencia', ascending=False)
+            if not resultado.empty:
+                st.markdown("### Resultados Encontrados")
+                for _, linha in resultado.iterrows():
+                    st.write(f"**Job Code:** {linha['Job Code']}")
+                    st.write(f"**Título:** {linha['Titulo']}")
             else:
-                st.warning("Nenhum resultado encontrado.")
-        else:
-            st.error("Erro ao carregar os dados.")
+                st.warning("Nenhum resultado encontrado para a combinação selecionada.")
+    else:
+        st.error("Base de substituição não carregada.")
