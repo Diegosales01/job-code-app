@@ -133,6 +133,7 @@ elif modo_busca == "Colaborador (Ativo ou Desligado)":
             st.markdown("### Último Registro Encontrado")
             st.write(f"**Job Code:** {ultimo_registro['Job Code']}")
             st.write(f"**Título:** {ultimo_registro['Titulo Job Code']}")
+            st.write(f"**Descricao em 2024:** {ultimo_registro['Descrição']}")
             st.write(f"**Cargo:** {ultimo_registro['Cargo']}")
             st.write(f"**Gestor:** {ultimo_registro['Gestor']}")
     else:
@@ -167,6 +168,8 @@ elif modo_busca == "Gestor e Cargo":
                         job_codes_exibidos.add(job_code)
                         st.write(f"**Job Code:** {job_code}")
                         st.write(f"**Título:** {linha['Titulo Job Code']}")
+                        st.write(f"**Descricao em 2024:** {linha['Descrição']}")
+
             else:
                 st.warning("Nenhum resultado encontrado para a combinação selecionada.")
         else:
