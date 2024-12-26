@@ -71,7 +71,7 @@ st.title("Sistema de Sugestão de Job Codes")
 base_job_codes, base_substituicao = carregar_bases()
 
 # Seleção inicial
-modo_busca = st.radio("Como deseja buscar o Job Code?", ("Descrição da Atividade", "Colaborador (Ativo ou Desligado)", "Cargo e Gestor"))
+modo_busca = st.radio("Como deseja buscar o Job Code?", ("Descrição da Atividade", "Colaborador (Ativo ou Desligado)", "Gestor e Cargo"))
 
 if modo_busca == "Descrição da Atividade":
     descricao_usuario = st.text_area("Digite a descrição do cargo:")
@@ -139,7 +139,7 @@ elif modo_busca == "Colaborador (Ativo ou Desligado)":
     else:
         st.error("Base de substituição não carregada.")
 
-elif modo_busca == "Cargo e Gestor":
+elif modo_busca == "Gestor e Cargo":
     if base_substituicao is not None:
         gestor = st.selectbox("Selecione o gestor:", sorted(base_substituicao['Gestor'].dropna().unique()))
         cargo = st.selectbox("Selecione o cargo:", sorted(base_substituicao['Cargo'].dropna().unique()))
