@@ -160,7 +160,7 @@ elif modo_busca == "Gestor e Cargo":
                 st.markdown("### Resultados Encontrados")
                 for _, linha in resultado.iterrows():
                     st.write(f"**Job Code:** {linha['Job Code']}")
-                    st.write(f"**Título:** {linha['Titulo']}")
+                    st.write(f"**Título:** {linha['Titulo Job Code']}")
             else:
                 st.warning("Nenhum resultado encontrado para a combinação selecionada.")
         else:
