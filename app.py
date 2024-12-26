@@ -158,13 +158,18 @@ elif modo_busca == "Gestor e Cargo":
 
             if not resultado.empty:
                 st.markdown("### Resultados Encontrados")
+                
+                # Usar um conjunto para evitar duplicatas
+                job_codes_exibidos = set()
                 for _, linha in resultado.iterrows():
-                    st.write(f"**Job Code:** {linha['Job Code']}")
-                    st.write(f"**Título:** {linha['Titulo Job Code']}")
+                    job_code = linha['Job Code']
+                    if job_code not in job_codes_exibidos:
+                        job_codes_exibidos.add(job_code)
+                        st.write(f"**Job Code:** {job_code}")
+                        st.write(f"**Título:** {linha['Titulo Job Code']}")
             else:
                 st.warning("Nenhum resultado encontrado para a combinação selecionada.")
         else:
             st.warning("Por favor, selecione um cargo válido.")
     else:
         st.error("Base de substituição não carregada.")
-
