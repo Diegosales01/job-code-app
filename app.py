@@ -71,7 +71,7 @@ st.title("Sistema de Sugestão de Job Codes")
 base_job_codes, base_substituicao = carregar_bases()
 
 # Seleção inicial
-modo_busca = st.radio("Como deseja buscar o Job Code?", ("Descrição da Atividade", "Substituido", "Cargo e Gestor"))
+modo_busca = st.radio("Como deseja buscar o Job Code?", ("Descrição da Atividade", "Colaborador (Ativo ou Desligado)", "Cargo e Gestor"))
 
 if modo_busca == "Descrição da Atividade":
     descricao_usuario = st.text_area("Digite a descrição do cargo:")
@@ -124,9 +124,9 @@ if modo_busca == "Descrição da Atividade":
             registrar_feedback(descricao_usuario, codigo_completo)
             st.success(f"Código Completo Selecionado: {codigo_completo}")
 
-elif modo_busca == "Substituido":
+elif modo_busca == "Colaborador (Ativo ou Desligado)":
     if base_substituicao is not None:
-        substituido = st.selectbox("Selecione o nome do substituído:", sorted(base_substituicao['Substituido'].dropna().unique()))
+        substituido = st.selectbox("Selecione o nome do colaborador:", sorted(base_substituicao['Substituido'].dropna().unique()))
         if substituido:
             # Selecionar apenas o último registro baseado na data mais recente
             ultimo_registro = base_substituicao[base_substituicao['Substituido'] == substituido].sort_values(by='Data Referencia', ascending=False).iloc[0]
@@ -144,7 +144,7 @@ elif modo_busca == "Cargo e Gestor":
         cargo = st.selectbox("Selecione o cargo:", sorted(base_substituicao['Cargo'].dropna().unique()))
         gestor = st.selectbox("Selecione o gestor:", sorted(base_substituicao['Gestor'].dropna().unique()))
         if cargo and gestor:
-            resultado = base_substituicao[(base_substituicao['Cargo'] == cargo) & (base_substituicao['Gestor'] == gestor)].sort_values(by='Data Referencia', ascending=False)
+            resultado = base_substituicao[(base_substituicao['Gestor'] == gestor) & (base_substituicao['Cargo'] == cargo)].sort_values(by='Data Referencia', ascending=False)
             if not resultado.empty:
                 st.markdown("### Resultados Encontrados")
                 for _, linha in resultado.iterrows():
