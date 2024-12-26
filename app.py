@@ -141,7 +141,7 @@ elif modo_busca == "Colaborador (Ativo ou Desligado)":
 
 elif modo_busca == "Cargo e Gestor":
     if base_substituicao is not None:
-	gestor = st.selectbox("Selecione o gestor:", sorted(base_substituicao['Gestor'].dropna().unique()))
+        gestor = st.selectbox("Selecione o gestor:", sorted(base_substituicao['Gestor'].dropna().unique()))
         cargo = st.selectbox("Selecione o cargo:", sorted(base_substituicao['Cargo'].dropna().unique()))
         if cargo and gestor:
             resultado = base_substituicao[(base_substituicao['Gestor'] == gestor) & (base_substituicao['Cargo'] == cargo)].sort_values(by='Data Referencia', ascending=False)
@@ -154,3 +154,4 @@ elif modo_busca == "Cargo e Gestor":
                 st.warning("Nenhum resultado encontrado para a combinação selecionada.")
     else:
         st.error("Base de substituição não carregada.")
+
