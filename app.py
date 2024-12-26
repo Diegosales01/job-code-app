@@ -135,16 +135,27 @@ elif modo_busca == "Colaborador (Ativo ou Desligado)":
             st.write(f"**Título:** {ultimo_registro['Titulo Job Code']}")
             st.write(f"**Cargo:** {ultimo_registro['Cargo']}")
             st.write(f"**Gestor:** {ultimo_registro['Gestor']}")
-            st.write(f"**Data de Referência:** {ultimo_registro['Data Referencia']}")
     else:
         st.error("Base de substituição não carregada.")
 
 elif modo_busca == "Gestor e Cargo":
     if base_substituicao is not None:
+        # Seleção do gestor
         gestor = st.selectbox("Selecione o gestor:", sorted(base_substituicao['Gestor'].dropna().unique()))
-        cargo = st.selectbox("Selecione o cargo:", sorted(base_substituicao['Cargo'].dropna().unique()))
-        if cargo and gestor:
-            resultado = base_substituicao[(base_substituicao['Gestor'] == gestor) & (base_substituicao['Cargo'] == cargo)].sort_values(by='Data Referencia', ascending=False)
+        
+        # Filtrar cargos com base no gestor selecionado
+        if gestor:
+            cargos_filtrados = base_substituicao[base_substituicao['Gestor'] == gestor]['Cargo'].dropna().unique()
+            cargo = st.selectbox("Selecione o cargo:", sorted(cargos_filtrados))
+        else:
+            cargo = None
+
+        # Buscar resultados com base no gestor e cargo selecionados
+        if cargo:
+            resultado = base_substituicao[
+                (base_substituicao['Gestor'] == gestor) & (base_substituicao['Cargo'] == cargo)
+            ].sort_values(by='Data Referencia', ascending=False)
+
             if not resultado.empty:
                 st.markdown("### Resultados Encontrados")
                 for _, linha in resultado.iterrows():
@@ -152,6 +163,8 @@ elif modo_busca == "Gestor e Cargo":
                     st.write(f"**Título:** {linha['Titulo']}")
             else:
                 st.warning("Nenhum resultado encontrado para a combinação selecionada.")
+        else:
+            st.warning("Por favor, selecione um cargo válido.")
     else:
         st.error("Base de substituição não carregada.")
 
