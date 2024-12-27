@@ -67,7 +67,7 @@ def buscar_por_cargo_e_gestor(cargo, gestor, base_substituicao):
     return resultados[['Cargo', 'Gestor', 'Job Code', 'Descricao', 'Descricao em 2024']].values.tolist()
 
 # Interface do usuário
-st.title("Sistema de Sugestão de Job Codes")
+st.title("Busca de Job Codes")
 base_job_codes, base_substituicao = carregar_bases()
 
 # Seleção inicial
