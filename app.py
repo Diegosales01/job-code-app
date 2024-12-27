@@ -133,7 +133,7 @@ if modo_busca:
                 st.write(f"**Título:** {ultimo_registro['Titulo Job Code']}")
                 st.write(f"**Cargo:** {ultimo_registro['Cargo']}")
                 st.write(f"**Gestor:** {ultimo_registro['Gestor']}")
-		st.write(f"**Descrição:** {ultimo_registro['Descricao em 2024']}")
+                st.write(f"**Descrição:** {ultimo_registro['Descricao em 2024']}")
         else:
             st.error("Base de substituição não carregada.")
 
@@ -161,7 +161,7 @@ if modo_busca:
                             job_codes_exibidos.add(job_code)
                             st.write(f"**Job Code:** {job_code}")
                             st.write(f"**Título:** {linha['Titulo Job Code']}")
-			    st.write(f"**Descrição:** {linha['Descricao em 2024]}")	
+                            st.write(f"**Descrição:** {linha['Descricao em 2024]}")	
                 else:
                     st.warning("Nenhum resultado encontrado para a combinação selecionada.")
             else:
