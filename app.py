@@ -139,11 +139,11 @@ if modo_busca:
 
     elif modo_busca == "Gestor e Cargo":
         if base_substituicao is not None:
-            gestor = st.selectbox("Selecione o gestor:", sorted(base_substituicao['Gestor'].dropna().unique()))
+            gestor = st.selectbox("Passo 1 - Selecione o gestor:", sorted(base_substituicao['Gestor'].dropna().unique()))
 
             if gestor:
                 cargos_filtrados = base_substituicao[base_substituicao['Gestor'] == gestor]['Cargo'].dropna().unique()
-                cargo = st.selectbox("Selecione o cargo:", sorted(cargos_filtrados))
+                cargo = st.selectbox("Passo 2 - Selecione o cargo:", sorted(cargos_filtrados))
             else:
                 cargo = None
 
