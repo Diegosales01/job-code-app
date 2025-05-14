@@ -2,9 +2,15 @@ import streamlit as st
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import google.generativeai as genai
 
-# Stopwords estáticas em português
-stop_words = [...]  # Substitua pelas suas stopwords
+# Sua chave da API Gemini (configurada como segredo no Streamlit)
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
+genai.configure(api_key=GEMINI_API_KEY)
+model = genai.GenerativeModel('gemini-pro')
+
+# Stopwords estáticas em português (adicione suas stopwords aqui)
+stop_words = [...]
 
 # URLs das bases no GitHub
 BASE_JOB_CODES = "https://raw.githubusercontent.com/Diegosales01/job-code-app/refs/heads/main/Base_Job_Code_2024.xlsx"
@@ -54,6 +60,15 @@ def carregar_bases():
 def registrar_feedback(entrada, codigo_escolhido):
     st.info(f"Feedback registrado para: {entrada} com código {codigo_escolhido}")
 
+def gerar_descricao_gemini(descricao_base):
+    try:
+        prompt = f"Gere uma descrição detalhada da atividade com base nesta descrição resumida: '{descricao_base}'. Seja conciso e informativo."
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        st.error(f"Erro ao gerar descrição com Gemini: {e}")
+        return None
+
 # Funções de busca
 def buscar_por_substituido(substituido, base_substituicao):
     resultados = base_substituicao[base_substituicao['Substituido'].str.contains(substituido, case=False, na=False)]
@@ -102,11 +117,16 @@ if modo_busca:
                 st.warning("Por favor, insira uma descrição válida.")
 
         if st.session_state.opcoes_descricao:
-            for i, (codigo, descricao, titulo) in enumerate(st.session_state.opcoes_descricao, 1):
+            for i, (codigo, descricao_base, titulo) in enumerate(st.session_state.opcoes_descricao, 1):
                 st.markdown(f"### Opção {i}")
                 st.write(f"**Título:** {titulo}")
                 st.write(f"**Código:** {codigo}")
-                st.write(f"**Descrição:** {descricao}")
+                with st.spinner("Gerando descrição com Gemini..."):
+                    descricao_detalhada = gerar_descricao_gemini(descricao_base)
+                if descricao_detalhada:
+                    st.write(f"**Descrição:** {descricao_detalhada}")
+                else:
+                    st.write(f"**Descrição (Base):** {descricao_base} (Erro ao gerar descrição detalhada)")
 
             opcao_selecionada = st.selectbox(
                 "Selecione a opção:",
