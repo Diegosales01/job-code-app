@@ -3,3 +3,5 @@ scikit-learn
 nltk
 streamlit
 openpyxl
+scikit-learn
+google-generativeai
