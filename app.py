@@ -3,7 +3,7 @@ import pandas as pd
 import google.generativeai as genai
 
 # Configurar a API do Gemini
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+genai.configure(api_key="AIzaSyD7R3jp2NwJL9esVzMWXapo9ll9nblwGQQ")
 
 # Função para obter sugestões usando Gemini
 def obter_sugestoes_gemini(descricao, base_job_codes):
@@ -33,13 +33,21 @@ Com base nisso, retorne as 3 descrições mais compatíveis com a descrição en
         st.error("Erro ao interpretar resposta do Gemini.")
         return []
 
-# Função para carregar a base de dados
+# Funções para carregar as bases
 @st.cache_data
-def carregar_base():
+def carregar_base_job_codes():
     try:
         return pd.read_excel("base_job_codes.xlsx")
     except Exception as e:
-        st.error(f"Erro ao carregar base de dados: {e}")
+        st.error(f"Erro ao carregar base de códigos: {e}")
+        return None
+
+@st.cache_data
+def carregar_base_substituicao():
+    try:
+        return pd.read_excel("base_substituicao.xlsx")
+    except Exception as e:
+        st.error(f"Erro ao carregar base de substituição: {e}")
         return None
 
 # Função para registrar feedback
@@ -66,13 +74,14 @@ st.title("Sistema de Sugestão de Job Code")
 
 modo_busca = st.radio("Escolha o modo de busca:", [
     "Descrição da Atividade",
-    "Colaborador (Cargo atual)",
-    "Gestor + Cargo"
+    "Colaborador (Ativo ou Desligado)",
+    "Gestor e Cargo"
 ])
 
-base_job_codes = carregar_base()
+base_job_codes = carregar_base_job_codes()
+base_substituicao = carregar_base_substituicao()
 
-# Descrição da Atividade com Gemini
+# Modo 1: Descrição da Atividade com Gemini
 if modo_busca == "Descrição da Atividade":
     descricao_usuario = st.text_area("Digite a descrição do cargo:")
 
@@ -118,5 +127,50 @@ if modo_busca == "Descrição da Atividade":
             registrar_feedback(descricao_usuario, codigo_completo)
             st.success(f"Código Completo Selecionado: {codigo_completo}")
 
-# As demais funcionalidades (busca por colaborador e por gestor + cargo)
-# permanecem iguais — se desejar, posso integrá-las aqui também.
+# Modo 2: Busca por Colaborador
+elif modo_busca == "Colaborador (Ativo ou Desligado)":
+    if base_substituicao is not None:
+        substituido = st.selectbox("Selecione o nome do colaborador:", sorted(base_substituicao['Substituido'].dropna().unique()))
+        if substituido:
+            ultimo_registro = base_substituicao[base_substituicao['Substituido'] == substituido].sort_values(by='Data Referencia', ascending=False).iloc[0]
+            st.markdown("### Último Registro Encontrado")
+            st.write(f"**Job Code:** {ultimo_registro['Job Code']}")
+            st.write(f"**Título:** {ultimo_registro['Titulo Job Code']}")
+            st.write(f"**Cargo:** {ultimo_registro['Cargo']}")
+            st.write(f"**Gestor:** {ultimo_registro['Gestor']}")
+            st.write(f"**Descrição:** {ultimo_registro['Descricao em 2024']}")
+    else:
+        st.error("Base de substituição não carregada.")
+
+# Modo 3: Busca por Gestor e Cargo
+elif modo_busca == "Gestor e Cargo":
+    if base_substituicao is not None:
+        gestor = st.selectbox("Passo 1 - Selecione o gestor:", sorted(base_substituicao['Gestor'].dropna().unique()))
+
+        if gestor:
+            cargos_filtrados = base_substituicao[base_substituicao['Gestor'] == gestor]['Cargo'].dropna().unique()
+            cargo = st.selectbox("Passo 2 - Selecione o cargo:", sorted(cargos_filtrados))
+        else:
+            cargo = None
+
+        if cargo:
+            resultado = base_substituicao[
+                (base_substituicao['Gestor'] == gestor) & (base_substituicao['Cargo'] == cargo)
+            ].sort_values(by='Data Referencia', ascending=False)
+
+            if not resultado.empty:
+                st.markdown("### Resultados Encontrados")
+                job_codes_exibidos = set()
+                for _, linha in resultado.iterrows():
+                    job_code = linha['Job Code']
+                    if job_code not in job_codes_exibidos:
+                        job_codes_exibidos.add(job_code)
+                        st.write(f"**Job Code:** {job_code}")
+                        st.write(f"**Título:** {linha['Titulo Job Code']}")
+                        st.write(f"**Descrição:** {linha['Descricao em 2024']}")
+            else:
+                st.warning("Nenhum resultado encontrado para a combinação selecionada.")
+        else:
+            st.warning("Por favor, selecione um cargo válido.")
+    else:
+        st.error("Base de substituição não carregada.")
